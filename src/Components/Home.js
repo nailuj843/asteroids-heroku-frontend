@@ -29,7 +29,16 @@ const Home = () => {
             },
             body: JSON.stringify(bodyObject)
         })
-            .then(response => console.log(response))
+            .then(response => {
+                console.log(response.status)
+                if (response.status === 204) {
+
+                }
+
+                if (response.status === 401) {
+
+                }
+            })
 
 
     }
