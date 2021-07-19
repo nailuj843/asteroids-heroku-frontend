@@ -20,7 +20,7 @@ const Home = () => {
         let bodyObject = { 'username': document.getElementById('username').value, 'password': document.getElementById('password').value }
 
 
-        fetch(`https://nailuj843-final-frontend.herokuapp.com/login`, {
+        fetch(`https://nailuj843-final-backend.herokuapp.com/login`, {
             credentials: 'include',
             method: 'post',
             headers: {
