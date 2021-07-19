@@ -38,6 +38,10 @@ const Home = () => {
                 if (response.status === 401) {
 
                 }
+
+                if (response.status === 200) {
+                    setUserVerified(true)
+                }
             })
 
 

@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 
 function App() {
   const [userVerified, setUserVerified] = useState(false)
+  const [userName, setUserName] = useState([])
 
   useEffect(() => {
     console.log(userVerified)
