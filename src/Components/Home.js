@@ -29,7 +29,7 @@ const Home = () => {
             },
             body: JSON.stringify(bodyObject)
         })
-            .then(response => console.log(response))
+            .then(response => console.log(response.JSON()))
     }
 
     return (
