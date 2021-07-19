@@ -1,0 +1,120 @@
+.App {
+    text-align: center;
+  }
+  
+  .App-header {
+    background-color: #282c34;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: white;
+    user-select: none;
+    width: 100vw;
+    height: 100vh;
+    
+  }
+
+  *{
+    -ms-overflow-style: none;
+    overflow: hidden;
+  }
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ship{
+    position: absolute;
+    text-align: center;
+    left: 0px;
+    top: 0px;
+    user-select: none;
+    /* border-style: double; */
+  }
+
+  .bullet0{
+    position: absolute;
+    text-align: center;
+    left: -100px;
+    top: -100px;
+    user-select: none;
+  }
+
+  .bullet1{
+    position: absolute;
+    text-align: center;
+    left: -100px;
+    top: -100px;
+    user-select: none;
+  }
+
+  .bullet2{
+    position: absolute;
+    text-align: center;
+    left: -100px;
+    top:-100px;
+    user-select: none;
+  }
+
+  .bullet3{
+    position: absolute;
+    text-align: center;
+    left: -100px;
+    top: -100px;
+    user-select: none;
+  }
+
+  .bullet4{
+    position: absolute;
+    text-align: center;
+    left: -100px;
+    top: -100px;
+    user-select: none;
+  }
+
+  .asteroid0{
+    position: absolute;
+    text-align: center;
+    left: 200px;
+    top: 200px;
+    user-select: none;
+    /* border-style: double; */
+  }
+
+  .asteroid1{
+    position: absolute;
+    text-align: center;
+    left: 200px;
+    top: 200px;
+    user-select: none;
+    /* border-style: double; */
+  }
+
+  .asteroid2{
+    position: absolute;
+    text-align: center;
+    left: 200px;
+    top: 200px;
+    user-select: none;
+    /* border-style: double; */
+  }
+
+  .asteroid3{
+    position: absolute;
+    text-align: center;
+    left: 200px;
+    top: 200px;
+    user-select: none;
+    /* border-style: double; */
+  }
+
+  .asteroid4{
+    position: absolute;
+    text-align: center;
+    left: 200px;
+    top: 200px;
+    user-select: none;
+    /* border-style: double; */
+  }
