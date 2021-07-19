@@ -2,9 +2,11 @@ import { Link } from "react-router-dom"
 import '../Styles/Home.css';
 import { useContext } from "react";
 import AppContext from "../Context/AppContext";
+import { useHistory } from "react-router-dom";
 
 const Home = () => {
     const { userVerified, setUserVerified } = useContext(AppContext)
+    const history = useHistory()
 
     var id = window.setTimeout(function () { }, 0);
 
@@ -41,6 +43,7 @@ const Home = () => {
 
                 if (response.status === 200) {
                     setUserVerified(true)
+                    history.push('/asteroids')
                 }
             })
 
