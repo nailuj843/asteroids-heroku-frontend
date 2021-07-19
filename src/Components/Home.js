@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom"
 import '../Styles/Home.css';
+import { useContext } from "react";
+import AppContext from "../Context/AppContext";
 
 const Home = () => {
+    const { userVerified, setUserVerified } = useContext(AppContext)
 
     var id = window.setTimeout(function () { }, 0);
 
@@ -10,19 +13,35 @@ const Home = () => {
     }
 
     const handleLogin = (e) => {
-        
+        console.log('User clicked login')
+        console.log(`username: ${document.getElementById('username').value}`)
+        console.log(`password: ${document.getElementById('password').value}`)
+
+        let bodyObject = { 'username': document.getElementById('username').value, 'password': document.getElementById('password').value }
+
+
+        fetch(`https://nailuj843-final-frontend.herokuapp.com/login`, {
+            credentials: 'include',
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+                'charset': 'UTF-8'
+            },
+            body: JSON.stringify(bodyObject)
+        })
+            .then(response => console.log(response))
     }
 
     return (
         <div className='columnLayout'>
             <div className='inputWLabel'>
-                <input className='homeInput'></input>
+                <input className='homeInput' id='username'></input>
                 userName
 
             </div>
             <br />
             <div className='inputWLabel'>
-                <input className='homeInput'></input>
+                <input className='homeInput' id='password'></input>
                 passWord
 
             </div>
@@ -36,14 +55,12 @@ const Home = () => {
                     </button>
                 </Link>
 
-                {/* 
-                <Link to='/register'
-                    style={{ textDecoration: 'none' }}>
-                    <button className='homeButton'>
-                        Register New User
+                <Link to='/newUser'>
+                    <button className='homeButton' >
+                        New User
                     </button>
-                </Link> 
-                */}
+                </Link>
+
 
             </div>
 
