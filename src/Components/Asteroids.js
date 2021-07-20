@@ -5,14 +5,19 @@ import LargeAsteroid from '../Images/Asteroid-Large 114x114.png'
 import Mars from '../Images/Mars.png'
 
 import '../Styles/Asteroids.css';
-import { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import { useHistory } from "react-router-dom";
+import AppContext from '../Context/AppContext'
+
 import ThrustSFX from '../Sounds/Thrust2.wav'
 import ShipStopSFX from '../Sounds/Stop.wav'
 import LaserSFX from '../Sounds/Laser.wav'
 import HitSFX from '../Sounds/Hit.wav'
-// import { RemoveScrollBar } from 'react-remove-scroll-bar'
+import DeathSFX from '../Sounds/Death.wav'
+import Soundtrack from '../Sounds/The Oh Of Pleasure - Ray Lyrnch.mp3'
 
-
+let score = 0
+let lives = 5
 let shipX = 0
 let shipY = 0
 let dX = 0
@@ -32,6 +37,8 @@ let thrustSFX = new Audio(ThrustSFX)
 let stopSFX = new Audio(ShipStopSFX)
 let laserSFX = new Audio(LaserSFX)
 let hitSFX = new Audio(HitSFX)
+let deathSFX = new Audio(DeathSFX)
+let soundtrack = new Audio(Soundtrack)
 let shipElement = null
 //[x, y, rotation, element, dx, dy, readyToShoot ]
 let bullets = [
@@ -40,29 +47,45 @@ let bullets = [
     [-1000, -100, 0, null, 0, 0, true],
     [-1000, -100, 0, null, 0, 0, true],
     [-1000, -100, 0, null, 0, 0, true]]
-//[x, y, rotation, element, dx, dy, active ]
+//[x, y, rotation, element, dx, dy, active, rotationRate ]
 let asteroids = [
-    [450, 180, 0, null, 1, 0, true],
-    [200, 800, 0, null, 2, 0, true],
-    [1600, 800, 0, null, 3, 0, true],
-    [1500, 120, 0, null, 4, 0, true],
-    [1750, 500, 0, null, 5, 0, true]]
+    [450, 180, 0, null, 1, 0, true, 1],
+    [200, 800, 0, null, 2, 0, true, 1],
+    [1600, 800, 0, null, 3, 0, true, 1],
+    [1500, 120, 0, null, 4, 0, true, 1],
+    [1750, 500, 0, null, 5, 0, true, 1]]
 let bulletIndex = 0
 let bulletSpeed = 30
 
 function Asteroids() {
     const [shipCoords, setShipCoords] = useState([100, 100])
     const [mouseUpdate, setMouseUpdate] = useState(0)
-
+    const { userVerified } = useContext(AppContext)
+    const { userName } = useContext(AppContext)
+    const { setPreviousScore } = useContext(AppContext)
+    const { userHiScore, setUserHiScore } = useContext(AppContext)
+    const { fetchURL } = useContext(AppContext)
+    const history = useHistory()
 
 
     useEffect(() => {
 
         var id = window.setTimeout(function () { }, 0);
 
+        // clears all previously started timeouts
         while (id--) {
             window.clearTimeout(id); // will do nothing if no timeout with id is present
         }
+
+        if (userVerified === false) {
+            history.push('/')
+        }
+
+        thrustSFX.volume = .2
+        stopSFX.volume = .2
+        laserSFX.volume = .2
+        hitSFX.volume = .2
+        soundtrack.volume = .3
 
         windowWidth = window.visualViewport.width
         windowHeight = window.visualViewport.height
@@ -82,17 +105,16 @@ function Asteroids() {
 
         randomizeAsteroids()
 
+        score = 0
+        lives = 5
         shipX = windowWidth / 2 - 45
         shipY = windowHeight / 2 - 45
         rateX = 0
         rateY = 0
 
-
+        soundtrack.play()
 
         let timerID = setTimeout(function tick() {
-            //console.log(shipY)
-
-
             setShipCoords([shipCoords[0] + 1, 100])
             updateShipLocation()
             updateShipRotation()
@@ -107,16 +129,18 @@ function Asteroids() {
                 thrustSFX.currentTime = 0
             }
 
-
-
             timerID = setTimeout(tick, 25)
         }, 25)
     }, [])
 
     const randomizeAsteroids = () => {
         asteroids.forEach((a, index) => {
-            asteroids[index][4] = (Math.random() * 2) - (Math.random() * 5)
-            asteroids[index][5] = (Math.random() * 2) - (Math.random() * 5)
+            // Set random dX [-2,2]
+            asteroids[index][4] = (Math.random() * 2) - (Math.random() * 4)
+            // Set random dY [-2,2]
+            asteroids[index][5] = (Math.random() * 2) - (Math.random() * 4)
+            // Set random rotationRate [-2,2]
+            asteroids[index][7] = (Math.random() * 2) - (Math.random() * 4)
         })
     }
 
@@ -145,8 +169,8 @@ function Asteroids() {
     }
 
     const updateShipRotation = () => {
-        let shipXoffset = parseInt(shipElement.style.left) + 50
-        let shipYoffset = parseInt(shipElement.style.top) + 48
+        let shipXoffset = parseInt(shipElement.style.left) + 60
+        let shipYoffset = parseInt(shipElement.style.top) + 60
 
         dX = mouseX - shipXoffset
 
@@ -166,7 +190,7 @@ function Asteroids() {
         let thrustY = Math.sin(shipAngle) * thrust
         rateX += thrustX
         rateY += thrustY
-        //
+
         if (rateX > 100) {
             rateX = 100
         }
@@ -188,8 +212,6 @@ function Asteroids() {
 
     const updateBullets = () => {
         bullets.forEach((bullet, index) => {
-            // bullets[index][0] += (Math.cos(bullets[index][2] * Math.PI / 180) * bulletSpeed) + rateX
-            // bullets[index][1] += (Math.sin(bullets[index][2] * Math.PI / 180) * bulletSpeed) + rateY
             bullets[index][0] += bullets[index][4]
             bullets[index][1] += bullets[index][5]
             bullets[index][3].style.left = `${bullets[index][0]}px`
@@ -205,70 +227,124 @@ function Asteroids() {
                 bullets[index][6] = true
                 bulletIndex = index
             }
-
         })
     }
 
     const updateAsteroids = () => {
         //[x, y, rotation, element, dx, dy, active ]
         asteroids.forEach((asteroid, index) => {
-            //asteroids[index][2] += Math.random()
-
+            // update X position
             asteroids[index][0] += asteroids[index][4]
+            // update Y position
             asteroids[index][1] += asteroids[index][5]
+            // update rotation
+            asteroids[index][2] += asteroids[index][7]
 
+            // HANDLE WRAP AROUND ------------------------------------------------------------
             if (asteroids[index][0] > windowWidth) {
                 asteroids[index][0] = -100
-                asteroids[index][4] = (Math.random() * 2) - (Math.random() * 5)
-                asteroids[index][5] = (Math.random() * 2) - (Math.random() * 5)
             }
-
             if (asteroids[index][0] < -100) {
                 asteroids[index][0] = windowWidth
-                asteroids[index][4] = (Math.random() * 2) - (Math.random() * 5)
-                asteroids[index][5] = (Math.random() * 2) - (Math.random() * 5)
             }
-
             if (asteroids[index][1] > windowHeight) {
                 asteroids[index][1] = -100
-                asteroids[index][4] = (Math.random() * 2) - (Math.random() * 5)
-                asteroids[index][5] = (Math.random() * 2) - (Math.random() * 5)
             }
-
             if (asteroids[index][1] < -100) {
                 asteroids[index][1] = windowHeight
-                asteroids[index][4] = (Math.random() * 2) - (Math.random() * 5)
-                asteroids[index][5] = (Math.random() * 2) - (Math.random() * 5)
             }
+            // END HANDLE WRAP AROUND ------------------------------------------------------------
 
+            // UPDATE CSS LOCATIONS / ROTATIONS ---------------------------------------------------
             asteroids[index][3].style.left = `${asteroids[index][0]}px`
             asteroids[index][3].style.top = `${asteroids[index][1]}px`
-            asteroids[index][3].style.transform = `rotate(${asteroids[index][2]++}deg)`
+            asteroids[index][3].style.transform = `rotate(${asteroids[index][2]}deg)`
+            // END UPDATE CSS LOCATIONS / ROTATIONS ---------------------------------------------------
 
+            // HANDLE SHIP COLLISION WITH ASTEROIDS --------------------------------------------------
             if (shipX < asteroids[index][0] + 80 &&
                 shipX + 90 > asteroids[index][0] + 20 &&
                 shipY < asteroids[index][1] + 80 &&
                 shipY + 90 > asteroids[index][1] + 20) {
-                // asteroid hit ship
-                //killPlayer()
-                alert(`asteroid hit player`)
-                shipX = windowWidth / 2 - 45
-                shipY = windowHeight / 2 - 45
-                rateX = 0
-                rateY = 0
+                handleDeath()
             }
+            // END SHIP COLLISION WITH ASTEROIDS --------------------------------------------------
 
+            // HANDLE BULLET COLLISIONS WITH ASTEROIDS ---------------------------------------------
             bullets.forEach((bullet, index2) => {
                 if (bullets[index2][0] < asteroids[index][0] + 114 &&
                     bullets[index2][0] + 10 > asteroids[index][0] &&
                     bullets[index2][1] < asteroids[index][1] + 114 &&
                     bullets[index2][1] + 10 > asteroids[index][1]) {
                     // bullet hit asteroid
+                    asteroids[index][4] += bullets[index2][4] / 5
+                    asteroids[index][5] += bullets[index2][5] / 5
+
                     resetBullet(index2)
                     hitSFX.currentTime = 0
                     hitSFX.play()
+                    score += 10
                 }
             })
+            // END HANDLE BULLET COLLISIONS WITH ASTEROIDS ---------------------------------------------
+        })
+    }
+
+    const handleDeath = () => {
+        // alert(`asteroid hit player`)
+        lives--
+
+        if (lives === 0) {
+            handleGameOver()
+        }
+
+        shipX = windowWidth / 2 - 45
+        shipY = windowHeight / 2 - 45
+        rateX = 0
+        rateY = 0
+        deathSFX.currentTime = 0
+        deathSFX.play()
+        checkAsteroidsAtOrigin()
+    }
+
+    const handleGameOver = () => {
+        soundtrack.pause()
+        soundtrack.currentTime = 0
+
+        if (score > userHiScore) {
+            setUserHiScore(score)
+
+            let bodyObject = { 'username': userName, 'score': score }
+
+            fetch(`${fetchURL}/updateHiScore`, {
+                credentials: 'include',
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'charset': 'UTF-8'
+                },
+                body: JSON.stringify(bodyObject)
+            })
+                .then(response => response.json())
+                .then(result => { console.log(result) })
+        }
+
+        setPreviousScore(score)
+
+        history.push('/UserPage')
+    }
+
+
+    const checkAsteroidsAtOrigin = () => {
+        asteroids.forEach((asteroid, index) => {
+
+            if (shipX < asteroids[index][0] + 80 &&
+                shipX + 90 > asteroids[index][0] + 20 &&
+                shipY < asteroids[index][1] + 80 &&
+                shipY + 90 > asteroids[index][1] + 20) {
+                asteroids[index][0] = 200
+                asteroids[index][1] = 200
+            }
         })
     }
 
@@ -283,24 +359,29 @@ function Asteroids() {
             mouseClicked = true;
             shipGraphics = ShipThrust
         }
-
-
         if (e.button === 2) {
             if (bullets[bulletIndex][6] === true) {
                 laserSFX.currentTime = 0
                 laserSFX.play()
                 // [ x, y, dx, dy, rotation]
-
                 bullets[bulletIndex][0] = shipX + 55
                 bullets[bulletIndex][1] = shipY + 47
                 bullets[bulletIndex][2] = shipDegrees
                 bullets[bulletIndex][4] = Math.cos(shipAngle) * bulletSpeed
                 bullets[bulletIndex][5] = Math.sin(shipAngle) * bulletSpeed
                 bullets[bulletIndex][6] = false
+
+                // apply momentum to ship
+                rateX -= Math.cos(shipAngle) * bulletSpeed / 10
+                rateY -= Math.sin(shipAngle) * bulletSpeed / 10
             }
             bulletIndex++
             bulletIndex = bulletIndex % 5
 
+        }
+
+        if (e.button === 3) {
+            soundtrack.pause()
         }
     }
 
@@ -360,6 +441,8 @@ function Asteroids() {
                 onDragStart={(e) => e.preventDefault()}
                 tabIndex='0'>
 
+                <div className="score"> SCORE: {score} </div> <br />
+                <div className="score"> LIVES: {lives} </div>
 
                 <div className='bullet0' id='bullet0'>
                     <img src={Bullet} alt='bullet'></img>
@@ -404,13 +487,6 @@ function Asteroids() {
                 <div className='ship' id='ship'>
                     <img src={shipGraphics} alt='ship'></img>
                 </div>
-                {/* 
-                <div> {`mouse X: ${mouseX.toFixed(2)}`} </div>
-                <div> {`mouse Y: ${mouseY.toFixed(2)}`}</div>
-                <div> {`rateX: ${rateX.toFixed(2)}`}</div>
-                <div> {`rateY: ${rateY.toFixed(2)}`}</div>
-                <div> {`radians: ${shipAngle.toFixed(2)}`}</div>
-                 */}
             </header>
         </div>
     );

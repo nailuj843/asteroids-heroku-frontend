@@ -25,6 +25,10 @@
     display: none;
   }
 
+  .score{
+    color: rgb(100, 254, 0);
+  }
+
   .ship{
     position: absolute;
     text-align: center;
