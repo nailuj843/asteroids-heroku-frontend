@@ -17,7 +17,7 @@ function App() {
   const [deployLocal] = useState(false)
   const [fetchURL, setFetchURL] = useState('http://localhost:3001')
 
-  if (deployLocal === false) {
+  if (deployLocal === false && fetchURL !== 'https://nailuj843-final-backend.herokuapp.com') {
     setFetchURL('https://nailuj843-final-backend.herokuapp.com')
   }
 
