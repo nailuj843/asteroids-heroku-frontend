@@ -87,6 +87,8 @@ function Asteroids() {
         hitSFX.volume = .2
         soundtrack.volume = .3
 
+        soundtrack.loop = true
+
         windowWidth = window.visualViewport.width
         windowHeight = window.visualViewport.height
         shipElement = document.getElementById('ship')
@@ -266,6 +268,8 @@ function Asteroids() {
                 shipX + 90 > asteroids[index][0] + 20 &&
                 shipY < asteroids[index][1] + 80 &&
                 shipY + 90 > asteroids[index][1] + 20) {
+                asteroids[index][4] = 0
+                asteroids[index][5] = 0
                 handleDeath()
             }
             // END SHIP COLLISION WITH ASTEROIDS --------------------------------------------------
@@ -318,7 +322,7 @@ function Asteroids() {
 
             fetch(`${fetchURL}/updateHiScore`, {
                 credentials: 'include',
-                method: 'post',
+                method: 'patch',
                 headers: {
                     'Content-Type': 'application/json',
                     'charset': 'UTF-8'
@@ -382,6 +386,7 @@ function Asteroids() {
 
         if (e.button === 3) {
             soundtrack.pause()
+            soundtrack.currentTime = 0
         }
     }
 
@@ -441,8 +446,8 @@ function Asteroids() {
                 onDragStart={(e) => e.preventDefault()}
                 tabIndex='0'>
 
-                <div className="score"> SCORE: {score} </div> <br />
-                <div className="score"> LIVES: {lives} </div>
+                <div className="score"> SCORE: {score} LIVES: {lives} </div>
+
 
                 <div className='bullet0' id='bullet0'>
                     <img src={Bullet} alt='bullet'></img>

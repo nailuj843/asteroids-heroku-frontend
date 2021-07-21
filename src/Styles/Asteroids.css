@@ -26,6 +26,8 @@
   }
 
   .score{
+    position: absolute;
+    top: 0px;
     color: rgb(100, 254, 0);
   }
 
