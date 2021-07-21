@@ -322,7 +322,7 @@ function Asteroids() {
             console.log('trying to patch new score to server')
             fetch(`${fetchURL}/updateHiScore`, {
                 credentials: 'include',
-                method: 'post',
+                method: 'put',
                 headers: {
                     'Content-Type': 'application/json',
                     'charset': 'UTF-8'
