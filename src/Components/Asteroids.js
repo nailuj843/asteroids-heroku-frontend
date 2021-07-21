@@ -319,10 +319,10 @@ function Asteroids() {
             setUserHiScore(score)
 
             let bodyObject = { 'username': userName, 'score': score }
-
+            console.log('trying to patch new score to server')
             fetch(`${fetchURL}/updateHiScore`, {
                 credentials: 'include',
-                method: 'patch',
+                method: 'post',
                 headers: {
                     'Content-Type': 'application/json',
                     'charset': 'UTF-8'
